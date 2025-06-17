@@ -14,25 +14,19 @@ import meshtastic
 import meshtastic.tcp_interface
 import meshtastic.serial_interface
 
-host = "!ae61b02c";
-
-# simple arg check
-if len(sys.argv) >= 2:
-    host = sys.argv[1];
-
 def onReceive(packet, interface):  # pylint: disable=unused-argument
     """called when a packet arrives"""
     now = datetime.datetime.now()
     today = now.strftime('%m.%d.%Y')
-    sender = packet["fromId"] #lets make this easier to read
-    print(f"-------------------------------------------------------------------------------")
-    print(f"Received: {packet}")
-    print(f"-------------------------------------------------------------------------------")
+    sender = iface.nodes[packet["fromId"]]['user']['shortName']
     pax_data = packet["decoded"]["paxcounter"]
     if 'wifi' not in pax_data:
         pax_data['wifi'] = 0
+    if 'ble' not in pax_data:
+        pax_data['ble'] = 0
     
-    file_path = f"PAXLOG_{sender}_{today}.csv".replace('!','')
+    print(f"{sender}:\n    BLE:{pax_data['ble']}\n   WIFI:{pax_data['wifi']}\n  TOTAL:{pax_data['ble'] + pax_data['wifi']}")
+    file_path = f"PAXLOG_{sender}_{today}.csv"
     if not os.path.exists(file_path):
         with open(file_path, 'w+') as file:
             file.write("Time,Bluetooth,Wifi,Total\n")
@@ -43,7 +37,6 @@ def onConnection(interface, topic=pub.AUTO_TOPIC):  # pylint: disable=unused-arg
     """called when we (re)connect to the radio"""
     # defaults to broadcast, specify a destination ID if you wish
     # interface.sendText("PAX Logger Online")
-
 
 pub.subscribe(onReceive, "meshtastic.receive.paxcounter")
 pub.subscribe(onConnection, "meshtastic.connection.established")
