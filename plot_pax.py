@@ -1,28 +1,43 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
+import datetime
+import sys
+import os
+import re
+
+dateToPlot = datetime.datetime.now().strftime('%m.%d.%Y')
+if len( sys.argv ) > 1:
+    dateToPlot = sys.argv[1]
+
+files = [f for f in os.listdir('.') if f.endswith(f'{dateToPlot}.csv')]
 
 columns = ["Time","Bluetooth","Wifi","Total"]
-df = pd.read_csv('TEST.csv', usecols=columns,)
 
-#print("Contents in csv file:", df)
+fig, axs = plt.subplots(len(files)-1)
 
-df["Time"] = pd.to_datetime(df['Time'], format='%Y-%m-%dT%H:%M')
+for i in range(len(files)-1):
+    df = pd.read_csv(files[i], usecols=columns)
 
-#plot = df.plot(x="Time", y=["Bluetooth","Wifi","Total"],marker='o',grid=True)
-#plot.xaxis.set_major_locator(mdates.MinuteLocator(byminute=[0,15,30,45], interval = 1))
-#plot.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+    #print("Contents in csv file:", df)
 
-plt.plot(df["Time"], df["Bluetooth"], marker='o', label="Bluetooth")
-plt.plot(df["Time"], df["Wifi"],      marker='o', label="Wifi")
-plt.plot(df["Time"], df["Total"],     marker='o', label="Total")
+    df["Time"] = pd.to_datetime(df['Time'], format='%Y-%m-%dT%H:%M')
 
-plt.gca().xaxis.set(
-    major_locator=mdates.MinuteLocator(byminute=[0,15,30,45], interval = 1),
-    major_formatter=mdates.DateFormatter('%H:%M'),         # format minor ticks
-);
+    axs[i].plot(df["Time"], df["Bluetooth"], marker='o', label="Bluetooth")
+    axs[i].plot(df["Time"], df["Wifi"],      marker='o', label="Wifi")
+    axs[i].plot(df["Time"], df["Total"],     marker='o', label="Total")
 
-plt.gcf().autofmt_xdate()
-plt.grid()
-plt.legend()
+    axs[i].xaxis.set(
+        major_locator=mdates.MinuteLocator(byminute=[0,15,30,45], interval = 1),
+        major_formatter=mdates.DateFormatter('%H:%M'),
+    );
+
+    axs[i].grid()
+    axs[i].legend()
+    axs[i].set_title(files[i].replace('PAXLOG_','').replace(f'_{dateToPlot}.csv',''))
+    axs[i].set_xmargin(0.01)
+fig.autofmt_xdate()
+fig.set_size_inches(18.5, 10.5)
+plt.tight_layout(pad=1)
+plt.savefig(f'PAX_{dateToPlot}.png') 
 plt.show()
