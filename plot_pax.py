@@ -14,9 +14,9 @@ files = [f for f in os.listdir('.') if f.endswith(f'{dateToPlot}.csv')]
 
 columns = ["Time","Bluetooth","Wifi","Total"]
 
-fig, axs = plt.subplots(len(files)-1)
+fig, axs = plt.subplots(len(files))
 
-for i in range(len(files)-1):
+for i in range(len(files)):
     df = pd.read_csv(files[i], usecols=columns)
 
     #print("Contents in csv file:", df)
