@@ -1,7 +1,3 @@
-"""Simple program to demo how to use meshtastic library.
-   To run: python examples/pub_sub_example2.py
-"""
-
 import os
 import sys
 import time
@@ -17,6 +13,7 @@ import meshtastic.serial_interface
 def onReceive(packet, interface):  # pylint: disable=unused-argument
     """called when a packet arrives"""
     now = datetime.datetime.now()
+    iso_now = now.isoformat(timespec='minutes')
     today = now.strftime('%m.%d.%Y')
     sender = iface.nodes[packet["fromId"]]['user']['shortName']
     pax_data = packet["decoded"]["paxcounter"]
@@ -25,13 +22,13 @@ def onReceive(packet, interface):  # pylint: disable=unused-argument
     if 'ble' not in pax_data:
         pax_data['ble'] = 0
     
-    print(f"{sender}:\n    BLE:{pax_data['ble']}\n   WIFI:{pax_data['wifi']}\n  TOTAL:{pax_data['ble'] + pax_data['wifi']}")
+    print(f"{sender}:\n    Time:{iso_now}\n    BLE:{pax_data['ble']}\n   WIFI:{pax_data['wifi']}\n  TOTAL:{pax_data['ble'] + pax_data['wifi']}")
     file_path = f"PAXLOG_{sender}_{today}.csv"
     if not os.path.exists(file_path):
         with open(file_path, 'w+') as file:
             file.write("Time,Bluetooth,Wifi,Total\n")
     with open(file_path, 'a') as file:
-        file.write(f"{now},{pax_data['ble']},{pax_data['wifi']},{pax_data['ble'] + pax_data['wifi']}\n")
+        file.write(f"{iso_now},{pax_data['ble']},{pax_data['wifi']},{pax_data['ble'] + pax_data['wifi']}\n")
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):  # pylint: disable=unused-argument
     """called when we (re)connect to the radio"""
