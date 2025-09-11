@@ -10,14 +10,14 @@ dateToPlot = datetime.datetime.now().strftime('%m.%d.%Y')
 if len( sys.argv ) > 1:
     dateToPlot = sys.argv[1]
 
-files = [f for f in os.listdir('.') if f.endswith(f'{dateToPlot}.csv')]
+files = [f for f in os.listdir('./Logs/') if f.endswith(f'{dateToPlot}.csv')]
 
 columns = ["Time","Bluetooth","Wifi","Total"]
 
 fig, axs = plt.subplots(len(files))
 
 for i in range(len(files)):
-    df = pd.read_csv(files[i], usecols=columns)
+    df = pd.read_csv('./Logs/' + files[i], usecols=columns)
 
     #print("Contents in csv file:", df)
 
@@ -39,5 +39,5 @@ for i in range(len(files)):
 fig.autofmt_xdate()
 fig.set_size_inches(18.5, 10.5)
 plt.tight_layout(pad=1)
-plt.savefig(f'PAX_{dateToPlot}.png') 
+plt.savefig(f'./Plots/PAX_{dateToPlot}.png') 
 plt.show()
