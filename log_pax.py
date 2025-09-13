@@ -10,6 +10,9 @@ import meshtastic
 import meshtastic.tcp_interface
 import meshtastic.serial_interface
 
+script_directory = os.path.dirname(os.path.abspath(__file__))
+log_directory = os.path.join(script_directory, "Logs")
+
 def onReceive(packet, interface):  # pylint: disable=unused-argument
     """called when a packet arrives"""
     now = datetime.datetime.now()
@@ -23,7 +26,7 @@ def onReceive(packet, interface):  # pylint: disable=unused-argument
         pax_data['ble'] = 0
     
     print(f"{sender}:\n    Time:{iso_now}\n    BLE:{pax_data['ble']}\n   WIFI:{pax_data['wifi']}\n  TOTAL:{pax_data['ble'] + pax_data['wifi']}")
-    file_path = f"./Logs/PAXLOG_{sender}_{today}.csv"
+    file_path = os.path.join(log_directory, f"PAXLOG_{sender}_{today}.csv")
     if not os.path.exists(file_path):
         with open(file_path, 'w+') as file:
             file.write("Time,Bluetooth,Wifi,Total\n")

@@ -6,18 +6,23 @@ import sys
 import os
 import re
 
+script_directory = os.path.dirname(os.path.abspath(__file__))
+log_directory = os.path.join(script_directory, "Logs")
+plot_directory = os.path.join(script_directory, "Plots")
+
 dateToPlot = datetime.datetime.now().strftime('%m.%d.%Y')
 if len( sys.argv ) > 1:
     dateToPlot = sys.argv[1]
 
-files = [f for f in os.listdir('./Logs/') if f.endswith(f'{dateToPlot}.csv')]
+files = [f for f in os.listdir(log_directory) if f.endswith(f'{dateToPlot}.csv')]
 
 columns = ["Time","Bluetooth","Wifi","Total"]
 
 fig, axs = plt.subplots(len(files))
 
 for i in range(len(files)):
-    df = pd.read_csv('./Logs/' + files[i], usecols=columns)
+    file_path = os.path.join(log_directory, files[i])
+    df = pd.read_csv(file_path, usecols=columns)
 
     #print("Contents in csv file:", df)
 
@@ -36,8 +41,10 @@ for i in range(len(files)):
     axs[i].legend()
     axs[i].set_title(files[i].replace('PAXLOG_','').replace(f'_{dateToPlot}.csv',''))
     axs[i].set_xmargin(0.01)
+
 fig.autofmt_xdate()
 fig.set_size_inches(18.5, 10.5)
 plt.tight_layout(pad=1)
-plt.savefig(f'./Plots/PAX_{dateToPlot}.png') 
+plot_path = os.path.join(plot_directory, f"PAX_{dateToPlot}.png")
+plt.savefig(plot_path)
 plt.show()
